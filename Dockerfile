@@ -1,17 +1,24 @@
-# Usamos la imagen oficial de Python
+# Usar imagen base de Python
 FROM python:3.11-slim
 
-# Establecemos el directorio de trabajo
+# Establecer directorio de trabajo
 WORKDIR /app
 
-# Copiamos los archivos necesarios
-COPY app.py /app/
+# Copiar requirements primero (para optimizar cache)
+COPY requirements.txt .
 
-# Instalamos Streamlit
-RUN pip install --no-cache-dir streamlit
+# Instalar dependencias
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Exponemos el puerto que usará Streamlit
+# Copiar el código de la aplicación
+COPY app_ef.py .
+
+# Exponer puerto 8501 (puerto por defecto de Streamlit)
 EXPOSE 8501
 
-# Comando para ejecutar la app
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+# Configurar Streamlit para producción
+ENV STREAMLIT_SERVER_PORT=8501
+ENV STREAMLIT_SERVER_ADDRESS=0.0.0.0
+
+# Comando para ejecutar la aplicación
+CMD ["streamlit", "run", "app_ef.py", "--server.port=8501", "--server.address=0.0.0.0"]
